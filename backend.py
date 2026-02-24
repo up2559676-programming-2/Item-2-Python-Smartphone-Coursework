@@ -58,28 +58,32 @@ class Smartphone:
             raise MemoryError("Not enough storage available")
 
     def take_photo(self):
+        self._consume_app_usage()
         self._check_storage_available(24)
 
         self.photos_app.take_photo()
-        self._consume_app_usage()
 
     def delete_photo(self):
-        self.photos_app.delete_photo()
         self._consume_app_usage()
+        if self.photos_app.num_photos == 0:
+            raise ValueError("No photos to delete")
+
+        self.photos_app.delete_photo()
 
     def save_video(self, duration: int):
+        self._consume_app_usage()
         self._check_storage_available(duration * 2)
 
         self.yourtube_app.save_video(duration)
-        self._consume_app_usage()
 
     def delete_video(self, index: int):
-        self.yourtube_app.delete_video(index)
         self._consume_app_usage()
+        self.yourtube_app.delete_video(index)
 
 
 class App:
-    def calculate_storage_used_mb(self) -> float: ...
+    def calculate_storage_used_mb(self) -> float:
+        raise NotImplementedError()
 
     def calculate_storage_used(self) -> float:
         return self.calculate_storage_used_mb() / 1024
