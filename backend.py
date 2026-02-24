@@ -11,12 +11,23 @@ class Smartphone:
         self.yourtube_app = YourTubeApp()
 
     def __str__(self) -> str:
-        battery_saver_mode = "Enabled" if self.battery_saver_mode else "Disabled"
-        return f"BnL Smartphone - Storage: {self.storage_capacity}GB, Battery: {self.battery}%, Battery Saver Mode: {battery_saver_mode}"
+        return f"BnL Smartphone - Storage: {self.storage_capacity}GB, Battery: {self.battery}%, Battery Saver Mode: {self.battery_saver_str}"
 
     @property
     def _storage_capacity_mb(self) -> int:
         return self.storage_capacity * 1024
+
+    @property
+    def battery_saver_str(self) -> str:
+        return "Enabled" if self.battery_saver_mode else "Disabled"
+
+    @property
+    def _storage_left_mb(self) -> float:
+        return self._storage_capacity_mb - self.total_storage_used_mb()
+
+    @property
+    def storage_left(self) -> float:
+        return self._storage_left_mb / 1024
 
     def use_battery(self, amount: int):
         self.battery = max(0, self.battery - amount)
@@ -35,8 +46,8 @@ class Smartphone:
 
     def total_storage_used_mb(self) -> float:
         return (
-            self.photos_app.calculate_storage_used()
-            + self.yourtube_app.calculate_storage_used()
+            self.photos_app.calculate_storage_used_mb()
+            + self.yourtube_app.calculate_storage_used_mb()
         )
 
     def _check_storage_available(self, additional_storage: float):
@@ -112,7 +123,7 @@ class YourTubeApp(App):
     def delete_video(self, videos_index: int):
         self.videos.pop(videos_index)
 
-    def calculate_storage_used(self) -> float:
+    def calculate_storage_used_mb(self) -> float:
         storage_per_second_megabytes = 2
         return sum(duration * storage_per_second_megabytes for duration in self.videos)
 
@@ -149,8 +160,3 @@ def test_yourtube_app():
     yourtube_app.delete_video(1)
 
     print(yourtube_app)
-
-
-test_smartphone()
-test_photos_app()
-test_yourtube_app()
