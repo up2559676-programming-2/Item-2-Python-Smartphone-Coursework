@@ -83,7 +83,7 @@ class SmartphoneGui:
     def _create_photo_app_widgets(self):
         Label(self.win, text="Photos App").pack()
 
-        photos_frame = Label(self.win)
+        photos_frame = Frame(self.win)
         photos_frame.pack()
 
         Label(photos_frame, text="Number of Photos:").grid(row=0, column=0)
@@ -157,12 +157,10 @@ class SmartphoneGui:
         self._refresh()
 
     def delete_photo(self):
-        if self.smartphone.photos_app.num_photos == 0:
-            ...
-            return
-
         try:
             self.smartphone.delete_photo()
+        except ValueError:
+            ...
         except RuntimeError:
             ...
 
@@ -216,10 +214,11 @@ class SmartphoneGui:
 
             try:
                 self.smartphone.delete_video(index)
-                win.destroy()
-                self._refresh()
             except RuntimeError as e:
                 messagebox.showerror("Battery Dead", str(e), parent=win)
+
+        win.destroy()
+        self._refresh()
 
     def open_delete_video_window(self):
         videos = self.smartphone.yourtube_app.videos
@@ -260,4 +259,5 @@ def main():
     gui.run()
 
 
-main()
+if __name__ == "__main__":
+    main()
