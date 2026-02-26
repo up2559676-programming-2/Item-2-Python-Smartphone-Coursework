@@ -139,6 +139,9 @@ class SmartphoneGuiTask6:
         self.num_videos_var.set(len(self.smartphone.yourtube_app.videos))
         self.videos_storage_used_var.set(f"{videos_storage_used:.2f}GB")
 
+        self.photos_error_var.set("")
+        self.videos_error_var.set("")
+
         battery_empty = self.smartphone.battery == 0
         storage_full = self.smartphone.storage_left == 0
 
@@ -159,7 +162,7 @@ class SmartphoneGuiTask6:
         self._create_yourtube_app_widgets()
 
     def _create_smartphone_widgets(self):
-        Label(self.win, text="BnL Smartphone").pack()
+        Label(self.win, text="BnL Smartphone").pack(pady=(0, 20))
 
         info_frame = Frame(self.win)
         info_frame.pack()
@@ -177,13 +180,14 @@ class SmartphoneGuiTask6:
         Label(info_frame, textvariable=self.storage_left_var).grid(row=3, column=1)
 
         button_frame = Frame(self.win)
-        button_frame.pack()
+        button_frame.pack(pady=(0, 20))
 
         Button(
             button_frame, text="Toggle Battery Saver", command=self.toggle_battery_saver
         ).grid(row=0, column=0)
         Button(button_frame, text="Charge Battery", command=self.charge_battery).grid(
-            row=0, column=1
+            row=0,
+            column=1,
         )
 
     def _create_photo_app_widgets(self):
@@ -203,18 +207,21 @@ class SmartphoneGuiTask6:
         photos_button_frame = Frame(self.win)
         photos_button_frame.pack()
 
-        Label(photos_button_frame, textvariable=self.photos_error_var, fg="red").grid(
-            row=0, column=0, columnspan=2
-        )
-
         self.take_photo_btn = Button(
             photos_button_frame,
             text="Take Photos",
             command=lambda: self.take_photo(),
-        ).grid(row=1, column=0)
+        )
+        self.take_photo_btn.grid(row=0, column=0)
+
         self.delete_photo_btn = Button(
             photos_button_frame, text="Delete Photo", command=self.delete_photo
-        ).grid(row=1, column=1)
+        )
+        self.delete_photo_btn.grid(row=0, column=1)
+
+        Label(photos_button_frame, textvariable=self.photos_error_var, fg="red").grid(
+            row=1, column=0, columnspan=2
+        )
 
     def _create_yourtube_app_widgets(self):
         Label(self.win, text="YourTube App").pack()
@@ -230,19 +237,18 @@ class SmartphoneGuiTask6:
             row=1, column=1
         )
 
-        save_frame = Frame(self.win)
-        save_frame.pack()
+        button_frame = Frame(self.win)
+        button_frame.pack()
 
         self.save_video_btn = Button(
-            save_frame, text="Save Video", command=self.open_save_video_window
-        ).grid(row=0, column=1)
-
-        delete_frame = Frame(self.win)
-        delete_frame.pack()
+            button_frame, text="Save Video", command=self.open_save_video_window
+        )
+        self.save_video_btn.pack(side="left")
 
         self.delete_video_btn = Button(
-            delete_frame, text="Delete Video", command=self.open_delete_video_window
-        ).grid(row=0, column=1)
+            button_frame, text="Delete Video", command=self.open_delete_video_window
+        )
+        self.delete_video_btn.pack(side="right")
 
     def toggle_battery_saver(self):
         self.smartphone.battery_saver_mode = not self.smartphone.battery_saver_mode
@@ -292,21 +298,18 @@ class SmartphoneGuiTask6:
     def open_save_video_window(self):
         win = Toplevel(self.win)
         win.title("Save Video")
-        win.geometry("300x200")
+        win.geometry("300x150")
 
         Label(win, text="Video duration (seconds):").pack()
-        Entry(win, textvariable=self.duration_var, width=14, justify="center").pack()
+        Entry(win, textvariable=self.duration_var, width=14).pack()
 
         Button(
             win,
             text="Save",
             command=lambda: self.save_video(win),
-            bg="#a6e3a1",
-            fg="#1e1e2e",
-            font=("Helvetica", 9, "bold"),
-            relief="flat",
-            padx=8,
-        ).pack(pady=10)
+        ).pack()
+
+        Label(win, textvariable=self.videos_error_var, fg="red").pack()
 
     def delete_videos(self, win: Toplevel, button_vars: list[IntVar]):
         if all(var.get() == 0 for var in button_vars):
