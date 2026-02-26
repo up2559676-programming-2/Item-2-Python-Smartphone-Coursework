@@ -242,7 +242,7 @@ class SmartphoneGuiTask6:
         self.save_video_btn = Button(
             button_frame, text="Save Video", command=self.open_save_video_window, padx=5
         )
-        self.save_video_btn.pack(side="left")
+        self.save_video_btn.grid(row=0, column=0)
 
         self.delete_video_btn = Button(
             button_frame,
@@ -250,7 +250,7 @@ class SmartphoneGuiTask6:
             command=self.open_delete_video_window,
             padx=5,
         )
-        self.delete_video_btn.pack(side="right")
+        self.delete_video_btn.grid(row=0, column=1)
 
     def toggle_battery_saver(self):
         self.smartphone.battery_saver_mode = not self.smartphone.battery_saver_mode
