@@ -101,7 +101,7 @@ class SmartphoneGui:
         self.win.mainloop()
 
 
-class SmartphoneGuiTask6:
+class SmartphoneGuiTask6(SmartphoneGui):
     def __init__(self, smartphone: Smartphone) -> None:
         self.smartphone = smartphone
 
@@ -157,70 +157,6 @@ class SmartphoneGuiTask6:
         for btn, enabled in controls:
             if btn is not None:
                 btn.config(state="active" if enabled else "disabled")
-
-    def create_widgets(self):
-        self._create_smartphone_widgets()
-        self._create_photo_app_widgets()
-        self._create_yourtube_app_widgets()
-
-    def _create_smartphone_widgets(self):
-        Label(self.win, text="BnL Smartphone").pack(pady=(0, 20))
-
-        info_frame = Frame(self.win)
-        info_frame.pack()
-
-        Label(info_frame, text="Storage Capacity:").grid(row=0, column=0)
-        Label(info_frame, text=self.smartphone.storage_capacity).grid(row=0, column=1)
-
-        Label(info_frame, text="Battery:").grid(row=1, column=0)
-        Label(info_frame, textvariable=self.battery_var).grid(row=1, column=1)
-
-        Label(info_frame, text="Battery Saver Mode:").grid(row=2, column=0)
-        Label(info_frame, textvariable=self.battery_saver_var).grid(row=2, column=1)
-
-        Label(info_frame, text="Storage Left:").grid(row=3, column=0)
-        Label(info_frame, textvariable=self.storage_left_var).grid(row=3, column=1)
-
-        button_frame = Frame(self.win)
-        button_frame.pack(pady=(0, 20))
-
-        Button(
-            button_frame, text="Toggle Battery Saver", command=self.toggle_battery_saver
-        ).grid(row=0, column=0, padx=5)
-        Button(button_frame, text="Charge Battery", command=self.charge_battery).grid(
-            row=0, column=1, padx=5
-        )
-
-    def _create_photo_app_widgets(self):
-        Label(self.win, text="Photos App").pack()
-
-        photos_frame = Frame(self.win)
-        photos_frame.pack()
-
-        Label(photos_frame, text="Number of Photos:").grid(row=0, column=0)
-        Label(photos_frame, textvariable=self.num_photos_var).grid(row=0, column=1)
-
-        Label(photos_frame, text="Storage Used:").grid(row=1, column=0)
-        Label(photos_frame, textvariable=self.photos_storage_used_var).grid(
-            row=1, column=1
-        )
-
-        photos_button_frame = Frame(self.win)
-        photos_button_frame.pack()
-
-        self.take_photo_btn = Button(
-            photos_button_frame, text="Take Photos", command=self.take_photo
-        )
-        self.take_photo_btn.grid(row=0, column=0, padx=5)
-
-        self.delete_photo_btn = Button(
-            photos_button_frame, text="Delete Photo", command=self.delete_photo
-        )
-        self.delete_photo_btn.grid(row=0, column=1, padx=5)
-
-        Label(photos_button_frame, textvariable=self.photos_error_var, fg="red").grid(
-            row=1, column=0, columnspan=2
-        )
 
     def _create_yourtube_app_widgets(self):
         Label(self.win, text="YourTube App").pack()
@@ -369,10 +305,6 @@ class SmartphoneGuiTask6:
             text="Delete Selected",
             command=lambda: self.delete_videos(win, button_vars),
         ).pack()
-
-    def run(self):
-        self.create_widgets()
-        self.win.mainloop()
 
 
 def main():
