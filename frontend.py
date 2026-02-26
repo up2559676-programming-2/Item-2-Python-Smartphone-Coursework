@@ -8,7 +8,6 @@ from tkinter import (
     Label,
     Button,
     Toplevel,
-    messagebox,
 )
 
 from backend import Smartphone
@@ -55,7 +54,7 @@ class SmartphoneGui:
     def _create_photo_app_widgets(self):
         Label(self.win, text="Photos App").pack()
 
-        photos_frame = Label(self.win)
+        photos_frame = Frame(self.win)
         photos_frame.pack()
 
         Label(photos_frame, text="Number of Photos:").grid(row=0, column=0)
@@ -65,6 +64,7 @@ class SmartphoneGui:
         Label(photos_frame, text="10GB").grid(row=1, column=1)
 
         photos_button_frame = Frame(self.win)
+        photos_button_frame.pack()
         Button(photos_button_frame, text="Take Photos").grid(row=0, column=0)
         Button(photos_button_frame, text="Delete Photo").grid(row=0, column=1)
 
@@ -115,8 +115,15 @@ class SmartphoneGuiTask6:
         self.num_videos_var = IntVar()
         self.videos_storage_used_var = StringVar()
 
+        self.photos_error_var = StringVar()
+        self.videos_error_var = StringVar()
+
         self.duration_var = StringVar(value="0")
-        # self.index_var = StringVar()
+
+        self.take_photo_btn: Button | None = None
+        self.delete_photo_btn: Button | None = None
+        self.save_video_btn: Button | None = None
+        self.delete_video_btn: Button | None = None
 
         self._refresh()
 
@@ -131,6 +138,20 @@ class SmartphoneGuiTask6:
         self.photos_storage_used_var.set(f"{photos_storage_used:.2f}GB")
         self.num_videos_var.set(len(self.smartphone.yourtube_app.videos))
         self.videos_storage_used_var.set(f"{videos_storage_used:.2f}GB")
+
+        battery_empty = self.smartphone.battery == 0
+        storage_full = self.smartphone.storage_left == 0
+
+        controls = (
+            (self.take_photo_btn, not battery_empty and not storage_full),
+            (self.save_video_btn, not battery_empty and not storage_full),
+            (self.delete_photo_btn, not battery_empty),
+            (self.delete_video_btn, not battery_empty),
+        )
+
+        for btn, enabled in controls:
+            if btn is not None:
+                btn.config(state="active" if enabled else "disabled")
 
     def create_widgets(self):
         self._create_smartphone_widgets()
@@ -182,12 +203,18 @@ class SmartphoneGuiTask6:
         photos_button_frame = Frame(self.win)
         photos_button_frame.pack()
 
-        Button(photos_button_frame, text="Take Photos", command=self.take_photo).grid(
-            row=0, column=0
+        Label(photos_button_frame, textvariable=self.photos_error_var, fg="red").grid(
+            row=0, column=0, columnspan=2
         )
-        Button(
+
+        self.take_photo_btn = Button(
+            photos_button_frame,
+            text="Take Photos",
+            command=lambda: self.take_photo(),
+        ).grid(row=1, column=0)
+        self.delete_photo_btn = Button(
             photos_button_frame, text="Delete Photo", command=self.delete_photo
-        ).grid(row=0, column=1)
+        ).grid(row=1, column=1)
 
     def _create_yourtube_app_widgets(self):
         Label(self.win, text="YourTube App").pack()
@@ -206,20 +233,14 @@ class SmartphoneGuiTask6:
         save_frame = Frame(self.win)
         save_frame.pack()
 
-        # duration_entry = Entry(save_frame, textvariable=self.duration_var, width=30)
-        # duration_entry.insert(0, "Write the duration here")
-        # duration_entry.grid(row=0, column=0)
-        Button(save_frame, text="Save Video", command=self.open_save_video_window).grid(
-            row=0, column=1
-        )
+        self.save_video_btn = Button(
+            save_frame, text="Save Video", command=self.open_save_video_window
+        ).grid(row=0, column=1)
 
         delete_frame = Frame(self.win)
         delete_frame.pack()
 
-        # index_entry = Entry(delete_frame, textvariable=self.index_var, width=30)
-        # index_entry.insert(0, "Write the index here")
-        # index_entry.grid(row=0, column=0)
-        Button(
+        self.delete_video_btn = Button(
             delete_frame, text="Delete Video", command=self.open_delete_video_window
         ).grid(row=0, column=1)
 
@@ -235,9 +256,11 @@ class SmartphoneGuiTask6:
         try:
             self.smartphone.take_photo()
         except MemoryError:
-            ...
+            self.photos_error_var.set("Error: Storage Full")
+            return
         except RuntimeError:
-            ...
+            self.photos_error_var.set("Error: Battery Dead")
+            return
 
         self._refresh()
 
@@ -245,9 +268,9 @@ class SmartphoneGuiTask6:
         try:
             self.smartphone.delete_photo()
         except ValueError:
-            ...
+            self.photos_error_var.set("Error: No photos to delete")
         except RuntimeError:
-            ...
+            self.photos_error_var.set("Error: Battery Dead")
 
         self._refresh()
 
@@ -259,12 +282,12 @@ class SmartphoneGuiTask6:
             self.smartphone.save_video(dur)
             win.destroy()
             self._refresh()
-        except MemoryError as e:
-            messagebox.showerror("Storage Full", str(e), parent=win)
-        except RuntimeError as e:
-            messagebox.showerror("Battery Dead", str(e), parent=win)
+        except MemoryError:
+            self.videos_error_var.set("Error: Storage Full")
+        except RuntimeError:
+            self.videos_error_var.set("Error: Battery Dead")
         except ValueError:
-            messagebox.showerror("Error", "Enter a positive integer.", parent=win)
+            self.videos_error_var.set("Error: Enter a positive integer.")
 
     def open_save_video_window(self):
         win = Toplevel(self.win)
@@ -287,7 +310,7 @@ class SmartphoneGuiTask6:
 
     def delete_videos(self, win: Toplevel, button_vars: list[IntVar]):
         if all(var.get() == 0 for var in button_vars):
-            messagebox.showwarning("No Selection", "Please select a video.", parent=win)
+            self.videos_error_var.set("Error: Please select a video")
             return
 
         for index in reversed(range(len(button_vars))):
@@ -295,12 +318,10 @@ class SmartphoneGuiTask6:
             if not var.get():
                 continue
 
-            print(index)
-
             try:
                 self.smartphone.delete_video(index)
-            except RuntimeError as e:
-                messagebox.showerror("Battery Dead", str(e), parent=win)
+            except RuntimeError:
+                self.videos_error_var.set("Error: Battery Dead")
 
         win.destroy()
         self._refresh()
@@ -308,7 +329,7 @@ class SmartphoneGuiTask6:
     def open_delete_video_window(self):
         videos = self.smartphone.yourtube_app.videos
         if not videos:
-            messagebox.showwarning("No Videos", "There are no videos to delete.")
+            self.videos_error_var.set("Error: There are no videos to delete")
             return
 
         win = Toplevel(self.win)
@@ -340,8 +361,9 @@ class SmartphoneGuiTask6:
 
 def main():
     smartphone = Smartphone(512)
-    gui = SmartphoneGui()
-    gui.run()
+    # gui = SmartphoneGui()
+    # gui.run()
+    smartphone.battery = 10
     gui_task6 = SmartphoneGuiTask6(smartphone)
     gui_task6.run()
 
