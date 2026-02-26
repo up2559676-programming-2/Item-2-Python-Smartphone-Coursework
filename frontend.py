@@ -209,14 +209,14 @@ class SmartphoneGuiTask6:
         photos_button_frame.pack()
 
         self.take_photo_btn = Button(
-            photos_button_frame, text="Take Photos", command=self.take_photo, padx=5
+            photos_button_frame, text="Take Photos", command=self.take_photo
         )
-        self.take_photo_btn.grid(row=0, column=0)
+        self.take_photo_btn.grid(row=0, column=0, padx=5)
 
         self.delete_photo_btn = Button(
-            photos_button_frame, text="Delete Photo", command=self.delete_photo, padx=5
+            photos_button_frame, text="Delete Photo", command=self.delete_photo
         )
-        self.delete_photo_btn.grid(row=0, column=1)
+        self.delete_photo_btn.grid(row=0, column=1, padx=5)
 
         Label(photos_button_frame, textvariable=self.photos_error_var, fg="red").grid(
             row=1, column=0, columnspan=2
@@ -240,17 +240,18 @@ class SmartphoneGuiTask6:
         button_frame.pack()
 
         self.save_video_btn = Button(
-            button_frame, text="Save Video", command=self.open_save_video_window, padx=5
+            button_frame, text="Save Video", command=self.open_save_video_window
         )
-        self.save_video_btn.grid(row=0, column=0)
+        self.save_video_btn.grid(row=0, column=0, padx=5)
 
         self.delete_video_btn = Button(
-            button_frame,
-            text="Delete Video",
-            command=self.open_delete_video_window,
+            button_frame, text="Delete Video", command=self.open_delete_video_window
+        )
+        self.delete_video_btn.grid(
+            row=0,
+            column=1,
             padx=5,
         )
-        self.delete_video_btn.grid(row=0, column=1)
 
     def toggle_battery_saver(self):
         self.smartphone.battery_saver_mode = not self.smartphone.battery_saver_mode
