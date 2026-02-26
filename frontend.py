@@ -65,8 +65,8 @@ class SmartphoneGui:
 
         photos_button_frame = Frame(self.win)
         photos_button_frame.pack()
-        Button(photos_button_frame, text="Take Photos").grid(row=0, column=0)
-        Button(photos_button_frame, text="Delete Photo").grid(row=0, column=1)
+        Button(photos_button_frame, text="Take Photos").grid(row=0, column=0, padx=5)
+        Button(photos_button_frame, text="Delete Photo").grid(row=0, column=1, padx=5)
 
     def _create_yourtube_app_widgets(self):
         Label(self.win, text="YourTube App").pack()
@@ -84,15 +84,17 @@ class SmartphoneGui:
         save_frame.pack()
 
         Entry(save_frame, textvariable=self.duration_var, width=30).grid(
-            row=0, column=0
+            row=0, column=0, padx=5
         )
-        Button(save_frame, text="Save Video").grid(row=0, column=1)
+        Button(save_frame, text="Save Video").grid(row=0, column=1, padx=5)
 
         delete_frame = Frame(self.win)
         delete_frame.pack()
 
-        Entry(delete_frame, textvariable=self.index_var, width=30).grid(row=0, column=0)
-        Button(delete_frame, text="Delte Video").grid(row=0, column=1)
+        Entry(delete_frame, textvariable=self.index_var, width=30).grid(
+            row=0, column=0, padx=5
+        )
+        Button(delete_frame, text="Delte Video").grid(row=0, column=1, padx=5)
 
     def run(self):
         self.create_widgets()
@@ -184,10 +186,9 @@ class SmartphoneGuiTask6:
 
         Button(
             button_frame, text="Toggle Battery Saver", command=self.toggle_battery_saver
-        ).grid(row=0, column=0)
+        ).grid(row=0, column=0, padx=5)
         Button(button_frame, text="Charge Battery", command=self.charge_battery).grid(
-            row=0,
-            column=1,
+            row=0, column=1, padx=5
         )
 
     def _create_photo_app_widgets(self):
