@@ -1,14 +1,11 @@
 class Smartphone:
     def __init__(self, storage_capacity: int) -> None:
         if storage_capacity <= 0:
-            raise ValueError("Storage capacity must be positive")
+            storage_capacity = 256
 
         self.storage_capacity = storage_capacity
         self.battery: int = 100
         self.battery_saver_mode: bool = False
-
-        self.photos_app = PhotosApp()
-        self.yourtube_app = YourTubeApp()
 
     def __str__(self) -> str:
         return f"BnL Smartphone - Storage: {self.storage_capacity}GB, Battery: {self.battery}%, Battery Saver Mode: {self.battery_saver_str}"
@@ -45,10 +42,7 @@ class Smartphone:
         self.use_battery(2)
 
     def total_storage_used_mb(self) -> float:
-        return (
-            self.photos_app.calculate_storage_used_mb()
-            + self.yourtube_app.calculate_storage_used_mb()
-        )
+        return sum(app.calculate_storage_used_mb() for app in self.apps)
 
     def _check_storage_available(self, additional_storage: float):
         if (
@@ -57,31 +51,34 @@ class Smartphone:
         ):
             raise MemoryError("Not enough storage available")
 
-    def take_photo(self):
-        self._consume_app_usage()
-        self._check_storage_available(24)
-
-        self.photos_app.take_photo()
-
-    def delete_photo(self):
-        self._consume_app_usage()
-        if self.photos_app.num_photos == 0:
-            raise ValueError("No photos to delete")
-
-        self.photos_app.delete_photo()
-
-    def save_video(self, duration: int):
-        self._consume_app_usage()
-        self._check_storage_available(duration * 2)
-
-        self.yourtube_app.save_video(duration)
-
-    def delete_video(self, index: int):
-        self._consume_app_usage()
-        self.yourtube_app.delete_video(index)
+    # def take_photo(self):
+    #     self._consume_app_usage()
+    #     self._check_storage_available(24)
+    #
+    #     self.photos_app.take_photo()
+    #
+    # def delete_photo(self):
+    #     self._consume_app_usage()
+    #     if self.photos_app.num_photos == 0:
+    #         raise ValueError("No photos to delete")
+    #
+    #     self.photos_app.delete_photo()
+    #
+    # def save_video(self, duration: int):
+    #     self._consume_app_usage()
+    #     self._check_storage_available(duration * 2)
+    #
+    #     self.yourtube_app.save_video(duration)
+    #
+    # def delete_video(self, index: int):
+    #     self._consume_app_usage()
+    #     self.yourtube_app.delete_video(index)
 
 
 class App:
+    def __init__(self, smartphone: Smartphone | None):
+        self.smartphone = smartphone
+
     def calculate_storage_used_mb(self) -> float:
         raise NotImplementedError()
 
@@ -90,26 +87,33 @@ class App:
 
 
 class PhotosApp(App):
-    def __init__(self) -> None:
+    def __init__(self, phone: Smartphone | None = None) -> None:
+        super().__init__(phone)
         self.num_photos: int = 0
 
     def __str__(self) -> str:
         storage_used = self.calculate_storage_used()
         return f"Photos App - Photos: {self.num_photos}, Storage Used: {storage_used:.2f}GB"
 
+    def storage_cost(self) -> float:
+        return 24
+
     def take_photo(self):
         self.num_photos += 1
 
     def delete_photo(self):
+        if self.num_photos == 0:
+            raise ValueError("No photos to delete")
         self.num_photos -= 1
 
     def calculate_storage_used_mb(self) -> float:
-        storage_per_photo_megabytes = 24
-        return self.num_photos * storage_per_photo_megabytes
+        return self.num_photos * self.storage_cost()
 
 
 class YourTubeApp(App):
-    def __init__(self) -> None:
+    def __init__(self, phone: Smartphone | None = None) -> None:
+        super().__init__(phone)
+
         # List of video durations in seconds
         self.videos: list[int] = []
 
@@ -121,7 +125,11 @@ class YourTubeApp(App):
             f"YourTube App - Videos: {num_videos}, Storage Used: {storage_used:.2f}GB"
         )
 
+    def storage_cost(self, duration: float = 0) -> float:
+        return duration * 2
+
     def save_video(self, video_duration: int):
+        """something"""
         self.videos.append(video_duration)
 
     def delete_video(self, videos_index: int):
