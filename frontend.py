@@ -253,6 +253,10 @@ class SmartphoneGuiTask6:
             padx=5,
         )
 
+        Label(button_frame, textvariable=self.videos_error_var, fg="red").grid(
+            row=1, column=0, columnspan=2
+        )
+
     def toggle_battery_saver(self):
         self.smartphone.battery_saver_mode = not self.smartphone.battery_saver_mode
         self._refresh()
@@ -299,9 +303,12 @@ class SmartphoneGuiTask6:
             self.videos_error_var.set("Error: Enter a positive integer.")
 
     def open_save_video_window(self):
+        self.videos_error_var.set("")
+
         win = Toplevel(self.win)
         win.title("Save Video")
         win.geometry("300x150")
+        win.grab_set()
 
         Label(win, text="Video duration (seconds):").pack()
         Entry(win, textvariable=self.duration_var, width=14).pack()
@@ -333,6 +340,8 @@ class SmartphoneGuiTask6:
         self._refresh()
 
     def open_delete_video_window(self):
+        self.videos_error_var.set("")
+
         videos = self.smartphone.yourtube_app.videos
         if not videos:
             self.videos_error_var.set("Error: There are no videos to delete")
@@ -341,6 +350,7 @@ class SmartphoneGuiTask6:
         win = Toplevel(self.win)
         win.title("Delete Video")
         win.geometry("320x240")
+        win.grab_set()
 
         Label(win, text="Select a video to delete:").pack()
 
