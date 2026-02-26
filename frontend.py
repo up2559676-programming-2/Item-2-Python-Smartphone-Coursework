@@ -48,8 +48,8 @@ class SmartphoneGui:
         button_frame = Frame(self.win)
         button_frame.pack()
 
-        Button(button_frame, text="Toggle Battery Saver").grid(row=0, column=0)
-        Button(button_frame, text="Charge Battery").grid(row=0, column=1)
+        Button(button_frame, text="Toggle Battery Saver").grid(row=0, column=0, padx=5)
+        Button(button_frame, text="Charge Battery").grid(row=0, column=1, padx=5)
 
     def _create_photo_app_widgets(self):
         Label(self.win, text="Photos App").pack()
@@ -94,7 +94,7 @@ class SmartphoneGui:
         Entry(delete_frame, textvariable=self.index_var, width=30).grid(
             row=0, column=0, padx=5
         )
-        Button(delete_frame, text="Delte Video").grid(row=0, column=1, padx=5)
+        Button(delete_frame, text="Delete Video").grid(row=0, column=1, padx=5)
 
     def run(self):
         self.create_widgets()
@@ -209,14 +209,12 @@ class SmartphoneGuiTask6:
         photos_button_frame.pack()
 
         self.take_photo_btn = Button(
-            photos_button_frame,
-            text="Take Photos",
-            command=lambda: self.take_photo(),
+            photos_button_frame, text="Take Photos", command=self.take_photo, padx=5
         )
         self.take_photo_btn.grid(row=0, column=0)
 
         self.delete_photo_btn = Button(
-            photos_button_frame, text="Delete Photo", command=self.delete_photo
+            photos_button_frame, text="Delete Photo", command=self.delete_photo, padx=5
         )
         self.delete_photo_btn.grid(row=0, column=1)
 
@@ -242,12 +240,15 @@ class SmartphoneGuiTask6:
         button_frame.pack()
 
         self.save_video_btn = Button(
-            button_frame, text="Save Video", command=self.open_save_video_window
+            button_frame, text="Save Video", command=self.open_save_video_window, padx=5
         )
         self.save_video_btn.pack(side="left")
 
         self.delete_video_btn = Button(
-            button_frame, text="Delete Video", command=self.open_delete_video_window
+            button_frame,
+            text="Delete Video",
+            command=self.open_delete_video_window,
+            padx=5,
         )
         self.delete_video_btn.pack(side="right")
 
