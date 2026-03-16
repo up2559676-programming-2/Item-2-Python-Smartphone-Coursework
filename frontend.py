@@ -1,14 +1,7 @@
 import functools
-from tkinter import (
-    Button,
-    Entry,
-    Frame,
-    Label,
-    StringVar,
-    Tk,
-)
+from tkinter import Button, Entry, Frame, Label, StringVar, Tk
 
-from backend import App, Smartphone
+from backend import AppGui, Smartphone
 
 
 class SmartphoneGui:
@@ -111,11 +104,7 @@ class SmartphoneGuiTask6(SmartphoneGui):
         self.battery_saver_var = StringVar()
         self.storage_left_var = StringVar()
 
-        self.take_photo_btn: Button | None = None
-        self.delete_photo_btn: Button | None = None
-        self.save_video_btn: Button | None = None
-        self.delete_video_btn: Button | None = None
-
+        self.app_buttons: list[Button] = []
         self._refresh()
 
     def _refresh(self):
@@ -124,18 +113,9 @@ class SmartphoneGuiTask6(SmartphoneGui):
         self.storage_left_var.set(f"{self.smartphone.storage_left:.2f}GB")
 
         battery_empty = self.smartphone.battery == 0
-        storage_full = self.smartphone.storage_left == 0
 
-        controls = (
-            (self.take_photo_btn, not battery_empty and not storage_full),
-            (self.save_video_btn, not battery_empty and not storage_full),
-            (self.delete_photo_btn, not battery_empty),
-            (self.delete_video_btn, not battery_empty),
-        )
-
-        for btn, enabled in controls:
-            if btn is not None:
-                btn.config(state="active" if enabled else "disabled")
+        for btn in self.app_buttons:
+            btn.config(state="disabled" if battery_empty else "normal")
 
     def _create_smartphone_widgets(self):
         Label(self.win, text="BnL Smartphone").pack(pady=(0, 20))
@@ -144,7 +124,9 @@ class SmartphoneGuiTask6(SmartphoneGui):
         info_frame.pack()
 
         Label(info_frame, text="Storage Capacity:").grid(row=0, column=0)
-        Label(info_frame, text=self.smartphone.storage_capacity).grid(row=0, column=1)
+        Label(info_frame, text=f"{self.smartphone.storage_capacity}GB").grid(
+            row=0, column=1
+        )
 
         Label(info_frame, text="Battery:").grid(row=1, column=0)
         Label(info_frame, textvariable=self.battery_var).grid(row=1, column=1)
@@ -169,14 +151,22 @@ class SmartphoneGuiTask6(SmartphoneGui):
         apps_frame = Frame(self.win)
         apps_frame.pack()
         for i, app in enumerate(self.smartphone.apps):
-            Button(
+            btn = Button(
                 apps_frame,
                 text=app.APP_NAME,
                 command=functools.partial(self.open_app, app),
-            ).grid(row=i, column=0)
+                width=15,
+                height=5,
+            )
+            btn.grid(row=i, column=0)
+            self.app_buttons.append(btn)
 
-    def open_app(self, app: App):
-        app.render()
+    def create_widgets(self):
+        self._create_smartphone_widgets()
+
+    def open_app(self, app: AppGui):
+        app_win = app.render(self.smartphone)
+        self.win.wait_window(app_win)
         self._refresh()
 
     def toggle_battery_saver(self):
@@ -189,9 +179,9 @@ class SmartphoneGuiTask6(SmartphoneGui):
 
 
 def main():
+    gui = SmartphoneGui()
+    gui.run()
     smartphone = Smartphone(512)
-    # gui = SmartphoneGui()
-    # gui.run()
     smartphone.battery = 10
     gui_task6 = SmartphoneGuiTask6(smartphone)
     gui_task6.run()
